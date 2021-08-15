@@ -1,0 +1,22 @@
+# Made with https://www.websequencediagrams.com/
+
+note over browser:
+new note is created and rendered
+directly on the browser, using
+spa.js that was already fetched
+end note
+
+note over browser:
+after note is created on the browser,
+the same script creates a HTTP POST
+request with the note data and sends
+it to the server
+end note
+
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+server-->browser: HTTP 201 [{mesage: "note created"}]
+
+note over server:
+Server replies with a simple "note
+created" message
+end note
