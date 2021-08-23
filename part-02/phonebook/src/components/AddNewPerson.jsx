@@ -1,0 +1,19 @@
+import React from 'react';
+
+const AddNewPerson = ({ submitAction, newName, newPhone, handleNewName, handleNewPhone}) => {
+  return (
+    <form onSubmit={submitAction}>
+      <div>
+        name: <input value={newName} onChange={handleNewName}/>
+      </div>
+      <div>
+        number: <input value={newPhone} onChange={handleNewPhone}/>
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
+  );
+}
+
+export default AddNewPerson;
