@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Filter from './components/Filter';
 import PrintSubTitle from './components/PrintSubtitle';
 import AddNewPerson from './components/AddNewPerson';
 import PrintPersons from './components/PrintPersons';
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    {
-      name: 'Arto Hellas',
-      number : '9999999'
-    },
-    {
-      name: 'Ada lovelace',
-      number: '123456'
-    }
-  ]);
-
-  const [newName, setNewName] = useState('Enter new name');
-  const [newPhone, setNewPhone] = useState('123456789');
+  const [persons, setPersons] = useState([]);
+  const [newName, setNewName] = useState('');
+  const [newPhone, setNewPhone] = useState('');
   const [filterName, setFilterName] = useState('');
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons').then(response =>
+      setPersons(response.data)
+    );
+  }, []);
+
 
   const handleFilterName = (event) => {
     setFilterName(event.target.value);
@@ -42,7 +40,7 @@ const App = () => {
       number: newPhone
     }
 
-    if (persons.some(person => person.name === newPerson.name)) {
+    if (persons.some(person => person.name.toLowerCase() === newPerson.name.toLowerCase())) {
       window.alert(`${newPerson.name} is already added to phonebook`);
     } else {
       setPersons(persons.concat(newPerson));
