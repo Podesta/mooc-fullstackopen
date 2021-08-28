@@ -1,37 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import DisplayCountry from './components/DisplayCountry';
-import DisplayTooMany from './components/DisplayTooMany';
-import DisplayUpToTen from './components/DisplayUpToTen';
-
-const SearchBar = ({ country, handleCountry }) => {
-  return (
-      <div>
-        find country: <input value={country} onChange={handleCountry} />
-      </div>
-  );
-}
-
-const DisplayList = ({ countries }) => {
-  if (countries.length > 10) {
-    return (
-      <DisplayTooMany countries={countries} />
-    );
-  } else if (countries.length > 1) {
-    return (
-      <DisplayUpToTen countries={countries} />
-    );
-  } else if (countries.length === 1) {
-    return (
-      <DisplayCountry countryData={countries[0]} />
-    );
-  } else {
-    return (
-      <>
-      </>
-    );
-  }
-}
+import DisplayList from './components/DisplayList';
+import SearchBar from './components/SearchBar';
 
 const App = () => {
   const [country, setCountry] = useState('');
@@ -50,7 +20,9 @@ const App = () => {
   return (
     <div>
       <SearchBar handleCountry={handleCountry} country={country} />
-      <DisplayList countries={found} />
+      {country.length === 0   // If nothing is typed, do not display list
+        ? ''
+        : <DisplayList countries={found} />}
     </div>
   );
 }
