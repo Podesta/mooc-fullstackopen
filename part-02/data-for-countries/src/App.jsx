@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import DisplayCountry from './components/DisplayCountry';
+import DisplayTooMany from './components/DisplayTooMany';
+import DisplayUpToTen from './components/DisplayUpToTen';
 
 const SearchBar = ({ country, handleCountry }) => {
   return (
@@ -9,31 +12,18 @@ const SearchBar = ({ country, handleCountry }) => {
   );
 }
 
-const DisplayCountry = ({ countries }) => {
+const DisplayList = ({ countries }) => {
   if (countries.length > 10) {
     return (
-      <div>
-        Too many matches, specify another filter.
-      </div>
+      <DisplayTooMany countries={countries} />
     );
   } else if (countries.length > 1) {
     return (
-      <div>
-        {countries.map(country =>
-        <div key={country.alpha3Code}>
-          {country.name}
-        </div>
-        )}
-      </div>
+      <DisplayUpToTen countries={countries} />
     );
   } else if (countries.length === 1) {
     return (
-      <div>
-        <h3>{countries[0].name}</h3>
-        <p>capital: {countries[0].capital}<br/>
-           population: {countries[0].population}
-        </p>
-      </div>
+      <DisplayCountry countryData={countries[0]} />
     );
   } else {
     return (
@@ -60,7 +50,7 @@ const App = () => {
   return (
     <div>
       <SearchBar handleCountry={handleCountry} country={country} />
-      <DisplayCountry countries={found} />
+      <DisplayList countries={found} />
     </div>
   );
 }
