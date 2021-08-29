@@ -18,7 +18,7 @@ const DisplayList = ({ countries }) => {
     );
   }
   console.log('ERROR WITH API');
-  return null;
+  return <></>;
 }
 
 export default DisplayList;
