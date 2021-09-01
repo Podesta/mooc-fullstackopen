@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import personsService from './services/persons.jsx';
 import Filter from './components/Filter';
 import PrintSubTitle from './components/PrintSubtitle';
 import AddNewPerson from './components/AddNewPerson';
@@ -12,9 +12,11 @@ const App = () => {
   const [filterName, setFilterName] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:3001/persons').then(response =>
-      setPersons(response.data)
-    );
+    personsService
+      .getAll()
+      .then(persons => {
+        setPersons(persons)
+      });
   }, []);
 
 
@@ -41,12 +43,49 @@ const App = () => {
     }
 
     if (persons.some(person => person.name.toLowerCase() === newPerson.name.toLowerCase())) {
-      window.alert(`${newPerson.name} is already added to phonebook`);
+      const existingPerson = persons.find(person => person.name === newPerson.name);
+
+      if (window.confirm(`${existingPerson.name} is already added to phonebook, replace the old number with a new one?`)) {
+        personsService
+          .update(existingPerson.id, newPerson)
+          .then(updatedPerson => {
+            setPersons(persons.map(person =>
+              person.id === existingPerson.id ? updatedPerson : person))
+            setNewName('');
+            setNewPhone('');
+            console.log(updatedPerson);
+          })
+      }
     } else {
-      setPersons(persons.concat(newPerson));
-      setNewName('');
-      setNewPhone('');
+      personsService
+        .create(newPerson)
+        .then(addedPerson => {
+          setPersons(persons.concat(addedPerson));
+          setNewName('');
+          setNewPhone('');
+        });
     }
+  }
+
+  const handleDelete = (id) => {
+    const toRemove = persons.find(person => person.id === id);
+
+    if(!window.confirm(`Delete ${toRemove.name}?`)) {
+      return;
+    }
+
+    personsService
+      .remove(id)
+      .then(res => {
+        console.log('removed');
+        console.log(res);
+        setPersons(persons.filter(person => person.id !== id));
+      })
+      .catch(e => {
+        console.log(e);
+        alert(`${toRemove.name} with id ${id} was already deleted from server`);
+        setPersons(persons.filter(person => person.id !== id));
+      })
   }
 
 
@@ -58,7 +97,7 @@ const App = () => {
       <AddNewPerson submitAction={addPerson} newName={newName} newPhone={newPhone}
         handleNewPhone={handleNewPhone} handleNewName={handleNewName}/>
       <PrintSubTitle title="Numbers" />
-      <PrintPersons filteredPersons={filteredPersons} />
+      <PrintPersons filteredPersons={filteredPersons} handleDelete={handleDelete} />
     </div>
   );
 }

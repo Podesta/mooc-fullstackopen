@@ -1,9 +1,14 @@
 import React from 'react';
 import PrintSinglePerson from './PrintSinglePerson';
 
-const PrintPersons = ({ filteredPersons }) => (
+const PrintPersons = ({ filteredPersons, handleDelete }) => (
   filteredPersons.map(person =>
-    <PrintSinglePerson key={person.name} name={person.name} number={person.number} />
+    <PrintSinglePerson
+      key={person.name}
+      name={person.name}
+      number={person.number}
+      handleDelete={() => handleDelete(person.id)}
+    />
   )
 );
 

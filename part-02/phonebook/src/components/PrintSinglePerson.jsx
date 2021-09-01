@@ -1,8 +1,8 @@
 import React from 'react';
 
-const PrintSinglePerson = ({ name, number }) => (
+const PrintSinglePerson = ({ name, number, handleDelete }) => (
   <div>
-    {name} {number}
+    {name} {number} <button onClick={handleDelete} type="text">delete</button>
   </div>
 );
 
