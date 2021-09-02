@@ -4,12 +4,14 @@ import Filter from './components/Filter';
 import PrintSubTitle from './components/PrintSubtitle';
 import AddNewPerson from './components/AddNewPerson';
 import PrintPersons from './components/PrintPersons';
+import AddMessage from './components/AddMessage';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [filterName, setFilterName] = useState('');
+  const [addMessage, setAddMessage] = useState(null);
 
   useEffect(() => {
     personsService
@@ -51,9 +53,15 @@ const App = () => {
           .then(updatedPerson => {
             setPersons(persons.map(person =>
               person.id === existingPerson.id ? updatedPerson : person))
+
             setNewName('');
             setNewPhone('');
             console.log(updatedPerson);
+
+            setAddMessage(`${existingPerson.name} phone number updated to ${newPerson.number}`);
+            setTimeout(() => {
+              setAddMessage(null);
+            }, 5000);
           })
       }
     } else {
@@ -61,8 +69,14 @@ const App = () => {
         .create(newPerson)
         .then(addedPerson => {
           setPersons(persons.concat(addedPerson));
+
           setNewName('');
           setNewPhone('');
+
+          setAddMessage(`Added ${newPerson.name}`);
+          setTimeout(() => {
+            setAddMessage(null);
+          }, 5000);
         });
     }
   }
@@ -92,6 +106,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <AddMessage message={addMessage} />
       <Filter filterName={filterName} handleFilterName={handleFilterName} />
       <PrintSubTitle title="Add number" />
       <AddNewPerson submitAction={addPerson} newName={newName} newPhone={newPhone}
