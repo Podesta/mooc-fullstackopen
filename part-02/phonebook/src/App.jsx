@@ -5,6 +5,7 @@ import PrintSubTitle from './components/PrintSubtitle';
 import AddNewPerson from './components/AddNewPerson';
 import PrintPersons from './components/PrintPersons';
 import AddMessage from './components/AddMessage';
+import ErrMessage from './components/ErrMessage';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,6 +13,7 @@ const App = () => {
   const [newPhone, setNewPhone] = useState('');
   const [filterName, setFilterName] = useState('');
   const [addMessage, setAddMessage] = useState(null);
+  const [errMessage, setErrMessage] = useState(null);
 
   useEffect(() => {
     personsService
@@ -97,7 +99,11 @@ const App = () => {
       })
       .catch(e => {
         console.log(e);
-        alert(`${toRemove.name} with id ${id} was already deleted from server`);
+        //alert(`${toRemove.name} with id ${id} was already deleted from server`);
+        setErrMessage(`${toRemove.name} with id ${id} was already deleted from server`);
+        setTimeout(() => {
+          setErrMessage(null);
+        }, 5000);
         setPersons(persons.filter(person => person.id !== id));
       })
   }
@@ -107,6 +113,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <AddMessage message={addMessage} />
+      <ErrMessage message={errMessage} />
       <Filter filterName={filterName} handleFilterName={handleFilterName} />
       <PrintSubTitle title="Add number" />
       <AddNewPerson submitAction={addPerson} newName={newName} newPhone={newPhone}
