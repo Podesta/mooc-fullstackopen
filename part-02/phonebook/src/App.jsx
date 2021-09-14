@@ -43,7 +43,7 @@ const App = () => {
     event.preventDefault();
     const newPerson = {
       name: newName,
-      number: newPhone
+      phone: newPhone
     }
 
     if (persons.some(person => person.name.toLowerCase() === newPerson.name.toLowerCase())) {
@@ -60,7 +60,7 @@ const App = () => {
             setNewPhone('');
             console.log(updatedPerson);
 
-            setAddMessage(`${existingPerson.name} phone number updated to ${newPerson.number}`);
+            setAddMessage(`${existingPerson.name} phone number updated to ${newPerson.phone}`);
             setTimeout(() => {
               setAddMessage(null);
             }, 5000);

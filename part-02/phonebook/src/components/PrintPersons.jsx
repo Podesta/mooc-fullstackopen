@@ -6,7 +6,7 @@ const PrintPersons = ({ filteredPersons, handleDelete }) => (
     <PrintSinglePerson
       key={person.name}
       name={person.name}
-      number={person.number}
+      number={person.phone}
       handleDelete={() => handleDelete(person.id)}
     />
   )
