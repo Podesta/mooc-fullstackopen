@@ -20,6 +20,9 @@ const App = () => {
       .getAll()
       .then(persons => {
         setPersons(persons)
+      })
+      .catch(error => {
+        console.log(error);
       });
   }, []);
 
@@ -65,6 +68,12 @@ const App = () => {
               setAddMessage(null);
             }, 5000);
           })
+          .catch(error => {
+            setErrMessage(error.response.data.error);
+            setTimeout(() => {
+              setAddMessage(null);
+            }, 5000);
+          });
       }
     } else {
       personsService
@@ -76,6 +85,12 @@ const App = () => {
           setNewPhone('');
 
           setAddMessage(`Added ${newPerson.name}`);
+          setTimeout(() => {
+            setAddMessage(null);
+          }, 5000);
+        })
+        .catch(error => {
+          setErrMessage(error.response.data.error);
           setTimeout(() => {
             setAddMessage(null);
           }, 5000);
