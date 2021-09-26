@@ -8,7 +8,27 @@ const totalLikes = (blogs) => {
   }, 0);
 };
 
+const favoriteBlog = (blogs) => {
+  if (blogs.length === 0) {
+    return null;
+  }
+
+  let likes = blogs[0].likes;
+  return blogs.reduce((mostLiked, blog) => {
+    if (likes > blog.likes) {
+      return mostLiked;
+    } else {
+      mostLiked.title = blog.title;
+      mostLiked.author = blog.author;
+      mostLiked.likes = blog.likes;
+      likes = mostLiked.likes;
+      return mostLiked;
+    }
+  }, {});
+};
+
 module.exports = {
   dummy,
-  totalLikes
+  totalLikes,
+  favoriteBlog
 };
