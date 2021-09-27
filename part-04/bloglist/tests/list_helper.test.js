@@ -121,6 +121,48 @@ describe('Most blogs', () => {
 });
 
 
+describe('Most likes', () => {
+
+  test('when list has three blogs', () => {
+    const result = listHelper.mostLikes(listWithThreeBlogs);
+    expect(result).toEqual({
+      author: 'Me',
+      likes: 150
+    });
+  });
+
+  test('with repeating list', () => {
+    const result = listHelper.mostLikes(listWithRepeatingLikes);
+    expect(result).toEqual({
+      author: 'Me',
+      likes: 300
+    });
+  });
+
+  test('when list has a single author, return him', () => {
+    const result = listHelper.mostLikes(listWithOneBlog);
+    expect(result).toEqual({
+      author: 'Edsger W. Dijkstra',
+      likes: 5
+    });
+  });
+
+  test('when list has no blogs', () => {
+    const result = listHelper.mostLikes(listWithZeroBlogs);
+    expect(result).toEqual(undefined);
+  });
+
+  test('with default list', () => {
+    const result = listHelper.mostLikes(listDefault);
+    expect(result).toEqual({
+      author: 'Edsger W. Dijkstra',
+      likes: 17
+    });
+  });
+
+});
+
+
 const listWithOneBlog = [
   {
     _id: '5a422aa71b54a676234d17f8',
