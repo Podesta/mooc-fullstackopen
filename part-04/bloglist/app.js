@@ -22,7 +22,8 @@ mongoose.connect(config.MONGODB_URI)
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan('tiny'));
+app.use(morgan('tiny', {
+  skip: (req, res) => process.env.NODE_ENV === 'test' }));
 
 app.use('/api/blogs', blogRouter);
 

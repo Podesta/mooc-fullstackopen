@@ -36,6 +36,7 @@ test('valid blog can be added', async () => {
   const blogToAdd = {
     title: 'will be removed soon',
     author: 'gone',
+    url: 'soontobegone.com',
     likes: 10,
   };
 
@@ -45,11 +46,59 @@ test('valid blog can be added', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/);
 
-  const response = await api.get('/api/blogs');
-  expect(response.body).toHaveLength(helper.listDefault.length + 1);
-  expect(response.body).toContainEqual(added.body);
+  const blogsAtEnd = await api.get('/api/blogs');
+  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length + 1);
+  expect(blogsAtEnd.body).toContainEqual(added.body);
   expect(added.body).toMatchObject(blogToAdd);
 }, 10000);
+
+test('if likes is missing, it defaults to 0', async () => {
+  const blogToAdd = {
+    title: 'will be removed soon',
+    author: 'gone',
+    url: 'soontobegone.com'
+  };
+
+  const added = await api
+    .post('/api/blogs')
+    .send(blogToAdd)
+    .expect(201)
+    .expect('Content-Type', /application\/json/);
+
+  const blogsAtEnd = await api.get('/api/blogs');
+  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length + 1);
+  expect(added.body).toMatchObject({ likes: 0 });
+});
+
+test('blog without title is rejected', async () => {
+  const blogToAdd = {
+    author: 'gone',
+    url: 'soontobegone.com'
+  };
+
+  await api
+    .post('/api/blogs')
+    .send(blogToAdd)
+    .expect(400);
+
+  const blogsAtEnd = await api.get('/api/blogs');
+  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+});
+
+test('blog without url is rejected', async () => {
+  const blogToAdd = {
+    title: 'will be removed soon',
+    author: 'gone',
+  };
+
+  await api
+    .post('/api/blogs')
+    .send(blogToAdd)
+    .expect(400);
+
+  const blogsAtEnd = await api.get('/api/blogs');
+  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+});
 
 afterAll(() => {
   mongoose.connection.close();
