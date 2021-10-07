@@ -15,90 +15,133 @@ beforeEach(async () => {
   await Promise.all(promiseArray);
 });
 
-test('all notes are returned', async () => {
-  const response = await api.get('/api/blogs');
-  expect(response.body).toHaveLength(helper.listDefault.length);
+
+describe('when there are blogs already saved', () => {
+  test('all blogs are returned', async () => {
+    const response = await api.get('/api/blogs');
+    expect(response.body).toHaveLength(helper.listDefault.length);
+  });
+
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+  });
+
+  test('_id is named id', async () => {
+    const blog = await Blog.findOne({});
+    expect(blog.id).toBeDefined();
+  });
 });
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/);
+
+describe('addition of a new Blog', () => {
+  test('succeeds with status 201 when all fields are filled', async () => {
+    const blogToAdd = {
+      title: 'will be removed soon',
+      author: 'gone',
+      url: 'soontobegone.com',
+      likes: 10,
+    };
+
+    const added = await api
+      .post('/api/blogs')
+      .send(blogToAdd)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length + 1);
+    expect(blogsAtEnd.body).toContainEqual(added.body);
+    expect(added.body).toMatchObject(blogToAdd);
+  }, 10000);
+
+  test('succeeds and default likes to 0, when likes field is missing', async () => {
+    const blogToAdd = {
+      title: 'will be removed soon',
+      author: 'gone',
+      url: 'soontobegone.com'
+    };
+
+    const added = await api
+      .post('/api/blogs')
+      .send(blogToAdd)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length + 1);
+    expect(added.body).toMatchObject({ likes: 0 });
+  });
+
+  test('fails when title is missing', async () => {
+    const blogToAdd = {
+      author: 'gone',
+      url: 'soontobegone.com'
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(blogToAdd)
+      .expect(400);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+  });
+
+  test('fails when url is missing', async () => {
+    const blogToAdd = {
+      title: 'will be removed soon',
+      author: 'gone',
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(blogToAdd)
+      .expect(400);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+  });
 });
 
-test('_id is named id', async () => {
-  const blog = await Blog.findOne({});
-  expect(blog.id).toBeDefined();
+
+describe('deletion of a note', () => {
+  test('succeeds with status 204 if id is valid', async () => {
+    let blogsAtStart = await Blog.find({});
+    blogsAtStart = blogsAtStart.map(blog => blog.toJSON());
+    const blogToDelete = blogsAtStart[0];
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length - 1);
+    expect(blogsAtEnd).not.toContainEqual(blogToDelete);
+  });
+
+  test('return 204 if id is valid but blog does not exist', async () => {
+    const id = await helper.nonexistingId();
+
+    await api
+      .delete(`/api/blogs/${id}`)
+      .expect(204);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+  });
+
+  test('fails with status 400 if id is invalid', async () => {
+    const invalidId = '12345';
+
+    await api
+      .delete(`/api/blogs/${invalidId}`)
+      .expect(400);
+  });
 });
 
-test('valid blog can be added', async () => {
-  const blogToAdd = {
-    title: 'will be removed soon',
-    author: 'gone',
-    url: 'soontobegone.com',
-    likes: 10,
-  };
-
-  const added = await api
-    .post('/api/blogs')
-    .send(blogToAdd)
-    .expect(201)
-    .expect('Content-Type', /application\/json/);
-
-  const blogsAtEnd = await api.get('/api/blogs');
-  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length + 1);
-  expect(blogsAtEnd.body).toContainEqual(added.body);
-  expect(added.body).toMatchObject(blogToAdd);
-}, 10000);
-
-test('if likes is missing, it defaults to 0', async () => {
-  const blogToAdd = {
-    title: 'will be removed soon',
-    author: 'gone',
-    url: 'soontobegone.com'
-  };
-
-  const added = await api
-    .post('/api/blogs')
-    .send(blogToAdd)
-    .expect(201)
-    .expect('Content-Type', /application\/json/);
-
-  const blogsAtEnd = await api.get('/api/blogs');
-  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length + 1);
-  expect(added.body).toMatchObject({ likes: 0 });
-});
-
-test('blog without title is rejected', async () => {
-  const blogToAdd = {
-    author: 'gone',
-    url: 'soontobegone.com'
-  };
-
-  await api
-    .post('/api/blogs')
-    .send(blogToAdd)
-    .expect(400);
-
-  const blogsAtEnd = await api.get('/api/blogs');
-  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
-});
-
-test('blog without url is rejected', async () => {
-  const blogToAdd = {
-    title: 'will be removed soon',
-    author: 'gone',
-  };
-
-  await api
-    .post('/api/blogs')
-    .send(blogToAdd)
-    .expect(400);
-
-  const blogsAtEnd = await api.get('/api/blogs');
-  expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
-});
 
 afterAll(() => {
   mongoose.connection.close();

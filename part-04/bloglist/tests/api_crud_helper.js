@@ -1,3 +1,13 @@
+const Blog = require('../models/blog');
+
+const nonExistingId = async () => {
+  const blog = new Blog({ title: 'willremovesoon', url: 'removed.com' });
+  await blog.save();
+  await blog.remove();
+
+  return blog._id.toString();
+};
+
 const listDefault = [
   {
     '_id': '5a422a851b54a676234d17f7',
@@ -50,5 +60,6 @@ const listDefault = [
 ];
 
 module.exports = {
-  listDefault
-}
+  listDefault,
+  nonexistingId: nonExistingId
+};
