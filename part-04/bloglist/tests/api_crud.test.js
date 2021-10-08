@@ -107,7 +107,7 @@ describe('addition of a new Blog', () => {
 });
 
 
-describe('deletion of a note', () => {
+describe('deletion of a Blog', () => {
   test('succeeds with status 204 if id is valid', async () => {
     let blogsAtStart = await Blog.find({});
     blogsAtStart = blogsAtStart.map(blog => blog.toJSON());
@@ -119,7 +119,7 @@ describe('deletion of a note', () => {
 
     const blogsAtEnd = await api.get('/api/blogs');
     expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length - 1);
-    expect(blogsAtEnd).not.toContainEqual(blogToDelete);
+    expect(blogsAtEnd.body).not.toContainEqual(blogToDelete);
   });
 
   test('return 204 if id is valid but blog does not exist', async () => {
@@ -138,6 +138,70 @@ describe('deletion of a note', () => {
 
     await api
       .delete(`/api/blogs/${invalidId}`)
+      .expect(400);
+  });
+});
+
+
+describe('updating a Blog', () => {
+  test('succeeds with 200 with valid and existing id', async () => {
+    let blogsAtStart = await Blog.find({});
+    blogsAtStart = blogsAtStart.map(blog => blog.toJSON());
+    const blogToChange = blogsAtStart[0];
+
+    const newBlog = {
+      title: 'A new Blog',
+      author: 'soon gone',
+      url: 'changes.com',
+      likes: 100,
+    };
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${blogToChange.id}`)
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+    expect(blogsAtEnd.body).not.toContainEqual(blogToChange);
+    expect(blogsAtEnd.body).toContainEqual(updatedBlog.body);
+    expect(updatedBlog.body).toMatchObject(newBlog);
+  });
+
+  test('succeeds with 200 and changes nothing when req is empty', async () => {
+    let blogsAtStart = await Blog.find({});
+    blogsAtStart = blogsAtStart.map(blog => blog.toJSON());
+    const blogToChange = blogsAtStart[0];
+
+    const newBlog = {};
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${blogToChange.id}`)
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    const blogsAtEnd = await api.get('/api/blogs');
+    expect(blogsAtEnd.body).toHaveLength(helper.listDefault.length);
+    expect(blogsAtEnd.body).toContainEqual(blogToChange);
+    expect(blogsAtEnd.body).toContainEqual(updatedBlog.body);
+    expect(blogsAtStart).toStrictEqual(blogsAtEnd.body);
+  });
+
+  test('fails with 409 if id is valid but Blog does not exist', async () => {
+    const id = await helper.nonexistingId();
+
+    await api
+      .put(`/api/blogs/${id}`)
+      .expect(409);
+  });
+
+  test('fails with 400 if id is invalid', async () => {
+    const invalidId = '12345';
+
+    await api
+      .put(`/api/blogs/${invalidId}`)
       .expect(400);
   });
 });
