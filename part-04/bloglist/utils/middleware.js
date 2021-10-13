@@ -13,12 +13,22 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).send({ error: 'validation error' });
   } else if (error.name === 'JsonWebTokenError') {
     return res.status(401).json({ error: 'invalid token' });
+  } else if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({ error: 'token expired' });
   }
 
   next(error);
 };
 
+const tokenExtractor = (req, res, next) => {
+  if (req.headers.authorization) {
+    req.token = req.headers.authorization.substring(7);
+  };
+  next();
+};
+
 module.exports = {
   unknownEndpoint,
-  errorHandler
+  errorHandler,
+  tokenExtractor
 };
